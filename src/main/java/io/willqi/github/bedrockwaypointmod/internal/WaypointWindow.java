@@ -1,31 +1,32 @@
 package io.willqi.github.bedrockwaypointmod.internal;
 
+import io.willqi.github.bedrockwaypointmod.internal.component.WindowComponent;
+import io.willqi.github.bedrockwaypointmod.ui.UIObject;
+
+import java.awt.*;
+
 public class WaypointWindow {
 
+    private WindowComponent component;
+
     public WaypointWindow () {
-
+        setupWindow();
     }
 
     /**
-     * Clear the screen.
+     * Add UI object to the screen.
+     * @param obj Object you want to add.
      */
-    public void clear () {
-
+    public void addUIObject (UIObject obj) {
+        component.addUIObject(obj);
     }
 
     /**
-     * Write text on the screen.
-     * @param text The text you want to write.
-     * @param x X position to write it at.
-     * @param y Y position to write it at.
-     * @param fontSize Font size
+     * Remove UI object from the screen.
+     * @param obj Object you want to remove.
      */
-    public void drawTextAt (final String text, final int x, final int y, final int fontSize) {
-
-    }
-
-    public void extract () {
-        
+    public void removeUIObject (UIObject obj) {
+        component.removeUIObject(obj);
     }
 
     /**
@@ -41,10 +42,16 @@ public class WaypointWindow {
     }
 
     /**
-     * Used to create a transparent window for us to be able to draw on.
+     * Used to initialize the window we can draw on.
      */
     private void setupWindow () {
-
+        final Window window = new Window(null);
+        component = new WindowComponent();
+        window.add(component);
+        window.pack();
+        window.setBounds(window.getGraphicsConfiguration().getBounds());
+        window.setBackground(new Color(0, true));
+        window.setAlwaysOnTop(true);
+        window.setVisible(true);
     }
-
 }
