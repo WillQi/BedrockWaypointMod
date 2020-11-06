@@ -41,13 +41,18 @@ public class WaypointWindow {
      * @param yA The top y coordinate.
      * @param xB The right x coordinate.
      * @param yB The bottom y coordinate.
-     * @return The text that was extracted.
+     * @return The text that was extracted if any.
      */
-    public String readTextAt (final int xA, final int yA, final int xB, final int yB) throws AWTException, TesseractException {
+    public String readTextAt (final int xA, final int yA, final int xB, final int yB) {
 
         Rectangle screenImage = new Rectangle(xA, yA, xB - xA, yB - yA);
-        BufferedImage image = new Robot().createScreenCapture(screenImage);
-        return tesseract.doOCR(image);
+        try {
+            BufferedImage image = new Robot().createScreenCapture(screenImage);
+            return tesseract.doOCR(image);
+        } catch (AWTException | TesseractException exception) {
+            exception.printStackTrace();
+            return null;
+        }
 
     }
 
