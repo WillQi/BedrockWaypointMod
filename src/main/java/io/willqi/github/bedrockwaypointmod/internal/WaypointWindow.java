@@ -2,15 +2,21 @@ package io.willqi.github.bedrockwaypointmod.internal;
 
 import io.willqi.github.bedrockwaypointmod.internal.component.WindowComponent;
 import io.willqi.github.bedrockwaypointmod.ui.UIObject;
+import net.sourceforge.tess4j.Tesseract;
+import net.sourceforge.tess4j.TesseractException;
 
 import java.awt.*;
+import java.awt.image.BufferedImage;
+import java.nio.file.Paths;
 
 public class WaypointWindow {
 
     private WindowComponent component;
+    private Tesseract tesseract;
 
     public WaypointWindow () {
         setupWindow();
+        setupTesseract();
     }
 
     /**
@@ -37,8 +43,12 @@ public class WaypointWindow {
      * @param yB The bottom y coordinate.
      * @return The text that was extracted.
      */
-    private String readTextAt (final int xA, final int yA, final int xB, final int yB) {
-        return null;
+    public String readTextAt (final int xA, final int yA, final int xB, final int yB) throws AWTException, TesseractException {
+
+        Rectangle screenImage = new Rectangle(xA, yA, xB - xA, yB - yA);
+        BufferedImage image = new Robot().createScreenCapture(screenImage);
+        return tesseract.doOCR(image);
+
     }
 
     /**
@@ -53,5 +63,18 @@ public class WaypointWindow {
         window.setBackground(new Color(0, true));
         window.setAlwaysOnTop(true);
         window.setVisible(true);
+    }
+
+    /**
+     * Used to initialize the tessearct API so that we can read text from the screen.
+     */
+    private void setupTesseract () {
+
+        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath().substring(1);
+        final String tessDataPath = Paths.get(Paths.get(jarDirectoryPath, "data").toString(), "tessdata").toString();
+        tesseract = new Tesseract();
+        tesseract.setTessVariable("user_defined_dpi", "70");
+        tesseract.setDatapath(tessDataPath);
+
     }
 }
