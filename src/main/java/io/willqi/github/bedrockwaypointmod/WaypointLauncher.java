@@ -18,11 +18,6 @@ public class WaypointLauncher {
         setupDataFolder();
     }
 
-    public static void main (final String[] args) throws IOException {
-
-        final WaypointLauncher launcher = new WaypointLauncher();
-
-    }
 
     /**
      * Extract resources
@@ -38,7 +33,7 @@ public class WaypointLauncher {
             }
         }
 
-        // WaypointWindowC files
+        // WaypointWindow files
         final File tessDataFolder = new File(dataFolder.getAbsolutePath(), "tessdata");
         if (!tessDataFolder.exists()) {
             if (!tessDataFolder.mkdir()) {
@@ -51,6 +46,19 @@ public class WaypointLauncher {
             Files.copy(trainedDataStream, Paths.get(tesseractDataFile.getAbsolutePath()));
         }
 
+        // Default waypoints text file.
+        final File waypointsFile = new File(dataFolder.getAbsolutePath(), "waypoints.txt");
+        if (!waypointsFile.exists()) {
+            final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
+            Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
+        }
+
+
+    }
+
+    public static void main (final String[] args) throws IOException {
+
+        final WaypointLauncher launcher = new WaypointLauncher();
 
     }
 
