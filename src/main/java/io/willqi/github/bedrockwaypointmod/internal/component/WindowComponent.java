@@ -8,12 +8,13 @@ import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.io.IOException;
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 public class WindowComponent extends JPanel {
 
     private static Font MINECRAFT_FONT;
-    private final List<UIObject> objects = new ArrayList<>();
+    private final List<UIObject> objects = Collections.synchronizedList(new ArrayList<>());
 
     public WindowComponent () {
         try {
@@ -45,11 +46,11 @@ public class WindowComponent extends JPanel {
         }
     }
 
-    public void addUIObject (UIObject obj) {
+    public synchronized void addUIObject (UIObject obj) {
         objects.add(obj);
     }
 
-    public void removeUIObject (UIObject obj) {
+    public synchronized void removeUIObject (UIObject obj) {
         objects.remove(obj);
     }
 

@@ -20,6 +20,12 @@ public class Vector3 {
         return y;
     }
 
+    public int distanceTo (Vector3 origin) {
+        return (int)Math.sqrt(
+                Math.pow(origin.getX() - getX(), 2) + Math.pow(origin.getY() - getY(), 2) + Math.pow(origin.getZ() - getZ(), 2)
+        );
+    }
+
     public int getZ () {
         return z;
     }
