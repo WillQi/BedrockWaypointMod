@@ -19,6 +19,10 @@ public class WaypointWindow {
         setupTesseract();
     }
 
+    public void requestWindowUpdate () {
+        component.requestUpdate();
+    }
+
     /**
      * Add UI object to the screen.
      * @param obj Object you want to add.

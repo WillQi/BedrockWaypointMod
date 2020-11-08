@@ -10,24 +10,21 @@ import java.io.IOException;
 import java.util.ArrayList;
 import java.util.List;
 
-public class WindowComponent extends JPanel implements ActionListener {
+public class WindowComponent extends JPanel {
 
     private static Font MINECRAFT_FONT;
     private final List<UIObject> objects = new ArrayList<>();
 
     public WindowComponent () {
-        final Timer timer = new Timer(100, this);
         try {
             MINECRAFT_FONT = Font.createFont(Font.TRUETYPE_FONT, getClass().getResourceAsStream("/Minecraft-Regular.ttf"));
         } catch (FontFormatException | IOException exception) {
             exception.printStackTrace();
             MINECRAFT_FONT = Font.getFont("Arial");
         }
-        timer.start();
     }
 
-    @Override
-    public void actionPerformed(final ActionEvent e) {
+    public void requestUpdate () {
         revalidate();
         repaint();
     }
