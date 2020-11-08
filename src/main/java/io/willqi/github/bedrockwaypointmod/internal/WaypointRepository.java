@@ -2,7 +2,7 @@ package io.willqi.github.bedrockwaypointmod.internal;
 
 import io.willqi.github.bedrockwaypointmod.Waypoint;
 import io.willqi.github.bedrockwaypointmod.utils.Vector3;
-import io.willqi.github.bedrockwaypointmod.utils.WaypointComparator;
+import io.willqi.github.bedrockwaypointmod.internal.repository.WaypointComparator;
 
 import java.util.ArrayList;
 import java.util.List;
