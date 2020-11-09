@@ -6,18 +6,12 @@ import io.willqi.github.bedrockwaypointmod.internal.WaypointConfig;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointRepository;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointWindow;
 import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
-import io.willqi.github.bedrockwaypointmod.ui.Text;
-import io.willqi.github.bedrockwaypointmod.ui.UIObject;
-import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
 import java.io.File;
 import java.io.IOException;
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.ArrayList;
-import java.util.Iterator;
-import java.util.List;
 
 public class WaypointLauncher {
 
