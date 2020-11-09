@@ -7,10 +7,9 @@ import io.willqi.github.bedrockwaypointmod.internal.WaypointRepository;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointWindow;
 import io.willqi.github.bedrockwaypointmod.internal.threads.BoxGUIThread;
 import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
+import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -22,7 +21,8 @@ public class WaypointLauncher {
 
     public WaypointLauncher () throws IOException {
         setupDataFolder();
-        setupConfigAndWaypoints();
+        setupConfigAndWaypointsFiles();
+        extractWaypointsFromWaypointFile();
     }
 
     public WaypointRepository getRepository () {
@@ -42,7 +42,54 @@ public class WaypointLauncher {
         new Thread(new BoxGUIThread(this)).start();
     }
 
-    private void setupConfigAndWaypoints () throws IOException {
+    private void extractWaypointsFromWaypointFile () {
+
+        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
+        try {
+            final BufferedReader reader = new BufferedReader(new FileReader(waypointsFile));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    // Parse the waypoint.
+
+                    String[] parts = line.split(" ");
+                    if (parts.length < 4) {
+                        System.out.println("Invalid waypoint: " + line);
+                        continue;
+                    }
+
+                    int x, y, z;
+                    try {
+                        x = Integer.parseInt(parts[0]);
+                        y = Integer.parseInt(parts[1]);
+                        z = Integer.parseInt(parts[2]);
+                    } catch (NumberFormatException exception) {
+                        // Invalid coordinates.
+                        System.out.println("Invalid waypoint: " + line);
+                        continue;
+                    }
+
+                    final StringBuilder nameBuilder = new StringBuilder(parts[3]);
+                    for (int i = 4; i < parts.length; i++) {
+                        nameBuilder.append(" ").append(parts[i]);
+                    }
+                    final String name = nameBuilder.toString();
+                    getRepository().addWaypoint(new Waypoint(name, new Vector3(x, y, z)));
+                    System.out.println(String.format("Succesfully added waypoint %s (%s, %s, %s)", name, x, y, z));
+                }
+            }
+        } catch (FileNotFoundException exception) {
+            // No waypoints file. Technically should never happen, but eh.
+            System.out.println("waypoints.txt could not be found.");
+        } catch (IOException exception) {
+            // Failed to read waypoints.
+            System.out.println("Failed to read waypoints.txt");
+        }
+
+    }
+
+    private void setupConfigAndWaypointsFiles() throws IOException {
 
         final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 
