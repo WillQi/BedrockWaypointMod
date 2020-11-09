@@ -6,6 +6,7 @@ import io.willqi.github.bedrockwaypointmod.ui.Text;
 import io.willqi.github.bedrockwaypointmod.ui.UIObject;
 import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
+import java.awt.*;
 import java.util.ArrayList;
 import java.util.Iterator;
 import java.util.List;
@@ -42,7 +43,10 @@ public class PrimaryModThread implements Runnable {
             }
             launcher.getWindow().requestWindowUpdate();
 
-            final String[] text = launcher.getWindow().readTextAt(cBoxLx, cBoxLy, cBoxRx, cBoxRy).split(" ");
+            final String parsed = launcher.getWindow().readTextAt(cBoxLx, cBoxLy, cBoxRx, cBoxRy)
+                    .replaceAll("[^(.0-9)|( )](?![\\d-])", "")
+                    .replaceAll(" +", " ");
+            final String[] text = parsed.split(" ");
 
             if (text.length >= 3) {
                 int x, y, z;
@@ -77,6 +81,7 @@ public class PrimaryModThread implements Runnable {
                                     waypoint.getLocation().getZ(),
                                     currentPos.distanceTo(waypoint.getLocation())
                             ),
+                            new Color(0, 150, 0),
                             wListX * (i + 1), wListY * (i + 1),
                             fontSize
                     );

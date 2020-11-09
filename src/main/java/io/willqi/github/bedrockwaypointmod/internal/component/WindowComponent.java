@@ -41,17 +41,23 @@ public class WindowComponent extends JPanel {
         g2d.setComposite(AlphaComposite.SrcOver);
 
         g.setFont(MINECRAFT_FONT);
-        for (UIObject object : objects) {
-            object.render(g);
+        synchronized (objects) {
+            for (UIObject object : objects) {
+                object.render(g);
+            }
         }
     }
 
-    public synchronized void addUIObject (UIObject obj) {
-        objects.add(obj);
+    public void addUIObject (UIObject obj) {
+        synchronized (objects) {
+            objects.add(obj);
+        }
     }
 
-    public synchronized void removeUIObject (UIObject obj) {
-        objects.remove(obj);
+    public void removeUIObject (UIObject obj) {
+        synchronized (objects) {
+            objects.remove(obj);
+        }
     }
 
 

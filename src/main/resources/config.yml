@@ -1,14 +1,14 @@
 coordinateBox:
   topLeft:
-    x: 100
-    y: 100
+    x: 130
+    y: 185
   bottomRight:
-    x: 1000
-    y: 1000
+    x: 340
+    y: 225
 
 waypointBox:
-  x: 100
+  x: 10
   y: 300
 
 maxWaypoints: 3
-fontSize: 40
+fontSize: 30

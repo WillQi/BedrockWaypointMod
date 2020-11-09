@@ -53,7 +53,7 @@ public class WaypointLauncher {
                 if (!line.startsWith("#")) {
                     // Parse the waypoint.
 
-                    String[] parts = line.split(" ");
+                    String[] parts = line.replaceAll(",", "").split(" ");
                     if (parts.length < 4) {
                         System.out.println("Invalid waypoint: " + line);
                         continue;
