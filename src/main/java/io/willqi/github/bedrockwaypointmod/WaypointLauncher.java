@@ -95,14 +95,14 @@ public class WaypointLauncher {
 
         // Default waypoints txt file.
         final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
-        if (!waypointsFile.exists()) {
+        if (!waypointsFile.getAbsoluteFile().exists()) {
             final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
             Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
         }
 
         // Default config file.
         final File configFile = new File(jarDirectoryPath, "config.yml");
-        if (!configFile.exists()) {
+        if (!configFile.getAbsoluteFile().exists()) {
             final InputStream configStream = getClass().getResourceAsStream("/config.yml");
             Files.copy(configStream, Paths.get(waypointsFile.getAbsolutePath()));
         }
@@ -119,7 +119,7 @@ public class WaypointLauncher {
         final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
 
         final File dataFolder = new File(jarDirectoryPath, "data");
-        if (!dataFolder.exists()) {
+        if (!dataFolder.getAbsoluteFile().exists()) {
             if (!dataFolder.mkdir()) {
                 throw new IOException("Could not mkdir to create data folder");
             }
@@ -127,13 +127,13 @@ public class WaypointLauncher {
 
         // WaypointWindow files
         final File tessDataFolder = new File(dataFolder.getAbsolutePath(), "tessdata");
-        if (!tessDataFolder.exists()) {
+        if (!tessDataFolder.getAbsoluteFile().exists()) {
             if (!tessDataFolder.mkdir()) {
                 throw new IOException("Could not mkdir to create tessdata folder.");
             }
         }
         final File tesseractDataFile = new File(tessDataFolder.getAbsolutePath(), "eng.traineddata");
-        if (!tesseractDataFile.exists()) {
+        if (!tesseractDataFile.getAbsoluteFile().exists()) {
             final InputStream trainedDataStream = getClass().getResourceAsStream("/tessdata/eng.traineddata");
             Files.copy(trainedDataStream, Paths.get(tesseractDataFile.getAbsolutePath()));
         }
