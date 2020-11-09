@@ -10,6 +10,7 @@ import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
 import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
 import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -44,7 +45,7 @@ public class WaypointLauncher {
 
     private void extractWaypointsFromWaypointFile () {
 
-        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        final String jarDirectoryPath = getJARLocation();
         final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
         try {
             final BufferedReader reader = new BufferedReader(new FileReader(waypointsFile));
@@ -91,20 +92,20 @@ public class WaypointLauncher {
 
     private void setupConfigAndWaypointsFiles() throws IOException {
 
-        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        final String jarDirectoryPath = getJARLocation();
 
         // Default waypoints txt file.
         final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
-        if (!waypointsFile.getAbsoluteFile().exists()) {
+        if (!waypointsFile.exists()) {
             final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
             Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
         }
 
         // Default config file.
         final File configFile = new File(jarDirectoryPath, "config.yml");
-        if (!configFile.getAbsoluteFile().exists()) {
+        if (!configFile.exists()) {
             final InputStream configStream = getClass().getResourceAsStream("/config.yml");
-            Files.copy(configStream, Paths.get(waypointsFile.getAbsolutePath()));
+            Files.copy(configStream, Paths.get(configFile.getAbsolutePath()));
         }
         ObjectMapper configMapper = new ObjectMapper(new YAMLFactory());
         config = configMapper.readValue(configFile, WaypointConfig.class);
@@ -116,10 +117,10 @@ public class WaypointLauncher {
      */
     private void setupDataFolder () throws IOException {
 
-        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        final String jarDirectoryPath = getJARLocation();
 
         final File dataFolder = new File(jarDirectoryPath, "data");
-        if (!dataFolder.getAbsoluteFile().exists()) {
+        if (!dataFolder.exists()) {
             if (!dataFolder.mkdir()) {
                 throw new IOException("Could not mkdir to create data folder");
             }
@@ -127,18 +128,23 @@ public class WaypointLauncher {
 
         // WaypointWindow files
         final File tessDataFolder = new File(dataFolder.getAbsolutePath(), "tessdata");
-        if (!tessDataFolder.getAbsoluteFile().exists()) {
+        if (!tessDataFolder.exists()) {
             if (!tessDataFolder.mkdir()) {
                 throw new IOException("Could not mkdir to create tessdata folder.");
             }
         }
         final File tesseractDataFile = new File(tessDataFolder.getAbsolutePath(), "eng.traineddata");
-        if (!tesseractDataFile.getAbsoluteFile().exists()) {
+        if (!tesseractDataFile.exists()) {
             final InputStream trainedDataStream = getClass().getResourceAsStream("/tessdata/eng.traineddata");
             Files.copy(trainedDataStream, Paths.get(tesseractDataFile.getAbsolutePath()));
         }
 
 
+    }
+
+    private String getJARLocation () {
+        final String jarLocation = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        return jarLocation.substring(0, jarLocation.lastIndexOf("/"));
     }
 
     public static void main (final String[] args) throws IOException {
