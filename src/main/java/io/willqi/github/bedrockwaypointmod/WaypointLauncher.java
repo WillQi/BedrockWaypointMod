@@ -1,11 +1,16 @@
 package io.willqi.github.bedrockwaypointmod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.willqi.github.bedrockwaypointmod.internal.WaypointConfig;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointRepository;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointWindow;
+import io.willqi.github.bedrockwaypointmod.internal.threads.BoxGUIThread;
+import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
+import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
+import java.io.*;
+import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
@@ -13,14 +18,97 @@ public class WaypointLauncher {
 
     private final WaypointWindow window = new WaypointWindow();
     private final WaypointRepository repository = new WaypointRepository();
+    private WaypointConfig config;
 
     public WaypointLauncher () throws IOException {
         setupDataFolder();
+        setupConfigAndWaypointsFiles();
+        extractWaypointsFromWaypointFile();
     }
 
-    public static void main (final String[] args) throws IOException {
+    public WaypointRepository getRepository () {
+        return repository;
+    }
 
-        final WaypointLauncher launcher = new WaypointLauncher();
+    public WaypointWindow getWindow () {
+        return window;
+    }
+
+    public WaypointConfig getConfig () {
+        return config;
+    }
+
+    public void start () {
+        new Thread(new PrimaryModThread(this)).start();
+        new Thread(new BoxGUIThread(this)).start();
+    }
+
+    private void extractWaypointsFromWaypointFile () {
+
+        final String jarDirectoryPath = getJARLocation();
+        final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
+        try {
+            final BufferedReader reader = new BufferedReader(new FileReader(waypointsFile));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                if (!line.startsWith("#")) {
+                    // Parse the waypoint.
+
+                    String[] parts = line.replaceAll(",", "").split(" ");
+                    if (parts.length < 4) {
+                        System.out.println("Invalid waypoint: " + line);
+                        continue;
+                    }
+
+                    int x, y, z;
+                    try {
+                        x = Integer.parseInt(parts[0]);
+                        y = Integer.parseInt(parts[1]);
+                        z = Integer.parseInt(parts[2]);
+                    } catch (NumberFormatException exception) {
+                        // Invalid coordinates.
+                        System.out.println("Invalid waypoint: " + line);
+                        continue;
+                    }
+
+                    final StringBuilder nameBuilder = new StringBuilder(parts[3]);
+                    for (int i = 4; i < parts.length; i++) {
+                        nameBuilder.append(" ").append(parts[i]);
+                    }
+                    final String name = nameBuilder.toString();
+                    getRepository().addWaypoint(new Waypoint(name, new Vector3(x, y, z)));
+                    System.out.println(String.format("Succesfully added waypoint %s (%s, %s, %s)", name, x, y, z));
+                }
+            }
+        } catch (FileNotFoundException exception) {
+            // No waypoints file. Technically should never happen, but eh.
+            System.out.println("waypoints.txt could not be found.");
+        } catch (IOException exception) {
+            // Failed to read waypoints.
+            System.out.println("Failed to read waypoints.txt");
+        }
+
+    }
+
+    private void setupConfigAndWaypointsFiles() throws IOException {
+
+        final String jarDirectoryPath = getJARLocation();
+
+        // Default waypoints txt file.
+        final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
+        if (!waypointsFile.exists()) {
+            final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
+            Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
+        }
+
+        // Default config file.
+        final File configFile = new File(jarDirectoryPath, "config.yml");
+        if (!configFile.exists()) {
+            final InputStream configStream = getClass().getResourceAsStream("/config.yml");
+            Files.copy(configStream, Paths.get(configFile.getAbsolutePath()));
+        }
+        ObjectMapper configMapper = new ObjectMapper(new YAMLFactory());
+        config = configMapper.readValue(configFile, WaypointConfig.class);
 
     }
 
@@ -29,7 +117,7 @@ public class WaypointLauncher {
      */
     private void setupDataFolder () throws IOException {
 
-        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        final String jarDirectoryPath = getJARLocation();
 
         final File dataFolder = new File(jarDirectoryPath, "data");
         if (!dataFolder.exists()) {
@@ -38,7 +126,7 @@ public class WaypointLauncher {
             }
         }
 
-        // WaypointWindowC files
+        // WaypointWindow files
         final File tessDataFolder = new File(dataFolder.getAbsolutePath(), "tessdata");
         if (!tessDataFolder.exists()) {
             if (!tessDataFolder.mkdir()) {
@@ -51,6 +139,18 @@ public class WaypointLauncher {
             Files.copy(trainedDataStream, Paths.get(tesseractDataFile.getAbsolutePath()));
         }
 
+
+    }
+
+    private String getJARLocation () {
+        final String jarLocation = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        return jarLocation.substring(0, jarLocation.lastIndexOf("/"));
+    }
+
+    public static void main (final String[] args) throws IOException {
+
+        final WaypointLauncher launcher = new WaypointLauncher();
+        launcher.start();
 
     }
 

@@ -1,0 +1,14 @@
+coordinateBox:
+  topLeft:
+    x: 130
+    y: 185
+  bottomRight:
+    x: 340
+    y: 225
+
+waypointBox:
+  x: 10
+  y: 300
+
+maxWaypoints: 3
+fontSize: 35

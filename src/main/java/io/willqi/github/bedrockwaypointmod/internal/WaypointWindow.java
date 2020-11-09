@@ -27,7 +27,7 @@ public class WaypointWindow {
      * Add UI object to the screen.
      * @param obj Object you want to add.
      */
-    public void addUIObject (UIObject obj) {
+    public synchronized void addUIObject (UIObject obj) {
         component.addUIObject(obj);
     }
 
@@ -35,7 +35,7 @@ public class WaypointWindow {
      * Remove UI object from the screen.
      * @param obj Object you want to remove.
      */
-    public void removeUIObject (UIObject obj) {
+    public synchronized void removeUIObject (UIObject obj) {
         component.removeUIObject(obj);
     }
 
@@ -79,11 +79,17 @@ public class WaypointWindow {
      */
     private void setupTesseract () {
 
-        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath().substring(1);
+        final String jarDirectoryPath = getJARLocation().substring(1);
         final String tessDataPath = Paths.get(Paths.get(jarDirectoryPath, "data").toString(), "tessdata").toString();
         tesseract = new Tesseract();
         tesseract.setTessVariable("user_defined_dpi", "70");
         tesseract.setDatapath(tessDataPath);
 
     }
+
+    private String getJARLocation () {
+        final String jarLocation = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+        return jarLocation.substring(0, jarLocation.lastIndexOf("/"));
+    }
+
 }

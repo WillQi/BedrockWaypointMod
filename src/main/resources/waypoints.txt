@@ -1,0 +1,7 @@
+# BedrockWaypointMod
+# ===================
+# Place each waypoint on it's own seperate line.
+# Waypoint syntax:
+# x y z name
+# For example: -10 10 -10 My Home
+0 10 0 My Home
