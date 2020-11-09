@@ -1,5 +1,8 @@
 package io.willqi.github.bedrockwaypointmod;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
+import io.willqi.github.bedrockwaypointmod.internal.WaypointConfig;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointRepository;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointWindow;
 import io.willqi.github.bedrockwaypointmod.ui.Text;
@@ -19,9 +22,11 @@ public class WaypointLauncher {
 
     private final WaypointWindow window = new WaypointWindow();
     private final WaypointRepository repository = new WaypointRepository();
+    private WaypointConfig config;
 
     public WaypointLauncher () throws IOException {
         setupDataFolder();
+        setupConfigAndWaypoints();
     }
 
     public WaypointRepository getRepository () {
@@ -32,20 +37,24 @@ public class WaypointLauncher {
         return window;
     }
 
+    public WaypointConfig getConfig () {
+        return config;
+    }
+
     public void start () {
 
         // extract from config
 
-        final int cBoxLx = 0;
-        final int cBoxLy = 0;
-        final int cBoxRx = 1000;
-        final int cBoxRy = 1000;
+        final int cBoxLx = getConfig().getCoordinatesForBox().getTopLeft().getX();
+        final int cBoxLy = getConfig().getCoordinatesForBox().getTopLeft().getY();
+        final int cBoxRx = getConfig().getCoordinatesForBox().getBottomRight().getX();
+        final int cBoxRy = getConfig().getCoordinatesForBox().getBottomRight().getY();
 
-        final int wListX = 300;
-        final int wListY = 500;
+        final int wListX = getConfig().getCoordinatesForWaypointsDisplay().getX();
+        final int wListY = getConfig().getCoordinatesForWaypointsDisplay().getY();
 
-        final int maxWaypointsDisplayed = 3;
-        final float fontSize = 30f;
+        final int maxWaypointsDisplayed = getConfig().getMaxWaypoints();
+        final float fontSize = getConfig().getFontSize();
 
         new Thread(() -> {
 
@@ -60,7 +69,7 @@ public class WaypointLauncher {
                     break;
                 }
 
-                final String[] text = window.readTextAt(cBoxLx, cBoxLy, cBoxRx, cBoxRy).split(" ");
+                final String[] text = getWindow().readTextAt(cBoxLx, cBoxLy, cBoxRx, cBoxRy).split(" ");
 
                 if (text.length >= 3) {
                     int x, y, z;
@@ -77,13 +86,13 @@ public class WaypointLauncher {
                     Iterator<UIObject> lineObjIterator = lineObjects.iterator();
                     while (lineObjIterator.hasNext()) {
                         final UIObject obj = lineObjIterator.next();
-                        window.removeUIObject(obj);
+                        getWindow().removeUIObject(obj);
                         lineObjIterator.remove();
                     }
 
                     final Vector3 currentPos = new Vector3(x, y, z);
 
-                    final List<Waypoint> waypoints = repository.findClosestWaypoints(currentPos, maxWaypointsDisplayed);
+                    final List<Waypoint> waypoints = getRepository().findClosestWaypoints(currentPos, maxWaypointsDisplayed);
                     for (int i = 0; i < waypoints.size(); i++) {
                         Waypoint waypoint = waypoints.get(i);
                         final Text textObj = new Text(
@@ -99,16 +108,38 @@ public class WaypointLauncher {
                                 fontSize
                         );
                         lineObjects.add(textObj);
-                        window.addUIObject(textObj);
+                        getWindow().addUIObject(textObj);
                     }
 
-                    window.requestWindowUpdate();
+                    getWindow().requestWindowUpdate();
                 }
             }
         }).run();
 
         // TODO: Another thread to show at start of program execution the current config boundaries. Fades away.
         // TODO: change elements array to be thread safe.
+
+    }
+
+    private void setupConfigAndWaypoints () throws IOException {
+
+        final String jarDirectoryPath = getClass().getProtectionDomain().getCodeSource().getLocation().getPath();
+
+        // Default waypoints txt file.
+        final File waypointsFile = new File(jarDirectoryPath, "waypoints.txt");
+        if (!waypointsFile.exists()) {
+            final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
+            Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
+        }
+
+        // Default config file.
+        final File configFile = new File(jarDirectoryPath, "config.yml");
+        if (!configFile.exists()) {
+            final InputStream configStream = getClass().getResourceAsStream("/config.yml");
+            Files.copy(configStream, Paths.get(waypointsFile.getAbsolutePath()));
+        }
+        ObjectMapper configMapper = new ObjectMapper(new YAMLFactory());
+        config = configMapper.readValue(configFile, WaypointConfig.class);
 
     }
 
@@ -139,22 +170,12 @@ public class WaypointLauncher {
             Files.copy(trainedDataStream, Paths.get(tesseractDataFile.getAbsolutePath()));
         }
 
-        // Default waypoints text file.
-        final File waypointsFile = new File(dataFolder.getAbsolutePath(), "waypoints.txt");
-        if (!waypointsFile.exists()) {
-            final InputStream waypointsStream = getClass().getResourceAsStream("/waypoints.txt");
-            Files.copy(waypointsStream, Paths.get(waypointsFile.getAbsolutePath()));
-        }
-
 
     }
 
     public static void main (final String[] args) throws IOException {
 
         final WaypointLauncher launcher = new WaypointLauncher();
-
-        launcher.getRepository().addWaypoint(new Waypoint("Test", new Vector3(10, 10, 24)));
-
         launcher.start();
 
     }
