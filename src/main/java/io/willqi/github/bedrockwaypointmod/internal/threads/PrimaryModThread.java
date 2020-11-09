@@ -33,15 +33,14 @@ public class PrimaryModThread implements Runnable {
         final float fontSize = launcher.getConfig().getFontSize();
 
         final List<UIObject> lineObjects = new ArrayList<>();
-
         while (true) {
-
             try {
                 Thread.sleep(100);
             } catch (InterruptedException exception) {
                 exception.printStackTrace();
                 break;
             }
+            launcher.getWindow().requestWindowUpdate();
 
             final String[] text = launcher.getWindow().readTextAt(cBoxLx, cBoxLy, cBoxRx, cBoxRy).split(" ");
 
@@ -85,7 +84,6 @@ public class PrimaryModThread implements Runnable {
                     launcher.getWindow().addUIObject(textObj);
                 }
 
-                launcher.getWindow().requestWindowUpdate();
             }
         }
 

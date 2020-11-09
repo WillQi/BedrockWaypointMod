@@ -5,6 +5,7 @@ import com.fasterxml.jackson.dataformat.yaml.YAMLFactory;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointConfig;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointRepository;
 import io.willqi.github.bedrockwaypointmod.internal.WaypointWindow;
+import io.willqi.github.bedrockwaypointmod.internal.threads.BoxGUIThread;
 import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
 
 import java.io.File;
@@ -37,8 +38,8 @@ public class WaypointLauncher {
     }
 
     public void start () {
-        new Thread(new PrimaryModThread(this)::run).run();
-        // TODO: Another thread to show at start of program execution the current config boundaries. Fades away.
+        new Thread(new PrimaryModThread(this)).start();
+        new Thread(new BoxGUIThread(this)).start();
     }
 
     private void setupConfigAndWaypoints () throws IOException {

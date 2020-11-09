@@ -27,7 +27,7 @@ public class WaypointWindow {
      * Add UI object to the screen.
      * @param obj Object you want to add.
      */
-    public void addUIObject (UIObject obj) {
+    public synchronized void addUIObject (UIObject obj) {
         component.addUIObject(obj);
     }
 
@@ -35,7 +35,7 @@ public class WaypointWindow {
      * Remove UI object from the screen.
      * @param obj Object you want to remove.
      */
-    public void removeUIObject (UIObject obj) {
+    public synchronized void removeUIObject (UIObject obj) {
         component.removeUIObject(obj);
     }
 
