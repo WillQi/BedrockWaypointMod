@@ -82,7 +82,7 @@ public class PrimaryModThread implements Runnable {
                                     currentPos.distanceTo(waypoint.getLocation())
                             ),
                             new Color(0, 150, 0),
-                            wListX * (i + 1), wListY * (i + 1),
+                            wListX, (int)(wListY + (i + 1) * fontSize),
                             fontSize
                     );
                     lineObjects.add(textObj);

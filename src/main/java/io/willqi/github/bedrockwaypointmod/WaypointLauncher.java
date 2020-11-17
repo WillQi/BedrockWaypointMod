@@ -10,7 +10,6 @@ import io.willqi.github.bedrockwaypointmod.internal.threads.PrimaryModThread;
 import io.willqi.github.bedrockwaypointmod.utils.Vector3;
 
 import java.io.*;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
